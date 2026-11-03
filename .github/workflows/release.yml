@@ -1,0 +1,106 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build release binary
+        run: cargo build --release
+
+      - name: Stamp PE icon and manifest
+        shell: pwsh
+        run: |
+          python -c '
+          import struct, ctypes
+          from ctypes import wintypes
+
+          kernel32 = ctypes.windll.kernel32
+          BeginUpdateResourceW = kernel32.BeginUpdateResourceW
+          BeginUpdateResourceW.argtypes = [wintypes.LPCWSTR, wintypes.BOOL]
+          BeginUpdateResourceW.restype = wintypes.HANDLE
+          UpdateResourceW = kernel32.UpdateResourceW
+          UpdateResourceW.argtypes = [wintypes.HANDLE, wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.WORD, wintypes.LPVOID, wintypes.DWORD]
+          UpdateResourceW.restype = wintypes.BOOL
+          EndUpdateResourceW = kernel32.EndUpdateResourceW
+          EndUpdateResourceW.argtypes = [wintypes.HANDLE, wintypes.BOOL]
+          EndUpdateResourceW.restype = wintypes.BOOL
+
+          exe_path = r"target\release\connect-tray.exe"
+          ico_path = r"assets\app.ico"
+
+          with open(ico_path, "rb") as f:
+              ico_bytes = f.read()
+
+          reserved, img_type, img_count = struct.unpack("<HHH", ico_bytes[:6])
+          grp_header = struct.pack("<HHH", 0, img_type, img_count)
+          grp_entries = []
+          icons = []
+          offset = 6
+          for i in range(1, img_count + 1):
+              w, h, colors, res, planes, bpp, size, img_off = struct.unpack("<BBBBHHII", ico_bytes[offset:offset+16])
+              grp_entries.append(struct.pack("<BBBBHHIH", w, h, colors, res, planes, bpp, size, i))
+              icons.append((i, ico_bytes[img_off:img_off+size]))
+              offset += 16
+
+          grp_data = grp_header + b"".join(grp_entries)
+          h_update = BeginUpdateResourceW(exe_path, False)
+          if not h_update:
+              raise RuntimeError(f"BeginUpdateResourceW failed: {ctypes.GetLastError()}")
+
+          for icon_id, icon_data in icons:
+              buf = (ctypes.c_char * len(icon_data)).from_buffer_copy(icon_data)
+              UpdateResourceW(h_update, ctypes.cast(3, wintypes.LPCWSTR), ctypes.cast(icon_id, wintypes.LPCWSTR), 1033, buf, len(icon_data))
+
+          grp_buf = (ctypes.c_char * len(grp_data)).from_buffer_copy(grp_data)
+          UpdateResourceW(h_update, ctypes.cast(14, wintypes.LPCWSTR), ctypes.cast(1, wintypes.LPCWSTR), 1033, grp_buf, len(grp_data))
+
+          manifest_xml = b"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+          <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+            <assemblyIdentity version="1.32.0.0" processorArchitecture="*" name="SonyConnectTray" type="win32"/>
+            <description>Sony Connect Tray</description>
+            <application xmlns="urn:schemas-microsoft-com:asm.v3">
+              <windowsSettings>
+                <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/pm</dpiAware>
+                <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2, PerMonitor</dpiAwareness>
+              </windowsSettings>
+            </application>
+            <dependency>
+              <dependentAssembly>
+                <assemblyIdentity type="win32" name="Microsoft.Windows.Common-Controls" version="6.0.0.0" processorArchitecture="*" publicKeyToken="6595b64144ccf1df" language="*"/>
+              </dependentAssembly>
+            </dependency>
+          </assembly>"""
+
+          man_buf = (ctypes.c_char * len(manifest_xml)).from_buffer_copy(manifest_xml)
+          UpdateResourceW(h_update, ctypes.cast(24, wintypes.LPCWSTR), ctypes.cast(1, wintypes.LPCWSTR), 1033, man_buf, len(manifest_xml))
+          EndUpdateResourceW(h_update, False)
+          print("Successfully stamped PE icon and manifest into connect-tray.exe")
+          '
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/release/connect-tray.exe
+          generate_release_notes: true

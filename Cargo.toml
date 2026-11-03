@@ -1,0 +1,36 @@
+[package]
+name = "connect-tray"
+version = "1.32.0"
+edition = "2024"
+description = "Lightweight Windows system tray controller for Sony Bluetooth headphones and earbuds"
+authors = ["Dimu <https://github.com/pdimu>"]
+repository = "https://github.com/pdimu/connect-tray"
+homepage = "https://github.com/pdimu/connect-tray"
+license = "MIT"
+readme = "README.md"
+keywords = ["sony", "headphones", "tray", "bluetooth", "rfcomm"]
+categories = ["os::windows-apis", "multimedia::audio"]
+
+[dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_Networking_WinSock",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_UI_Shell",
+    "Win32_Devices_Bluetooth",
+    "Win32_Graphics_Gdi",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Threading",
+    "Win32_System_Registry",
+    "Win32_Security",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_DataExchange",
+    "Win32_System_Memory",
+] }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

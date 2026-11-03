@@ -1,0 +1,25 @@
+# Rust build artifacts
+/target
+**/*.rs.bk
+*.pdb
+
+# Executables (releases are distributed via GitHub Releases)
+*.exe
+
+# Logs & crash reports
+*.log
+trace.log
+panic.log
+
+# Internal task & planning artifacts
+task.md
+implementation_plan.md
+
+# Operating System & IDE artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.bak
