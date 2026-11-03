@@ -1,4 +1,6 @@
-# <img src="assets/app.png" width="36" height="36" align="center" alt="Sony Connect Tray"> Sony Connect Tray
+<img src="assets/app.png" width="36" height="36" align="center" alt="Sony Connect Tray">
+
+# Sony Connect Tray
 
 A lightweight Windows system tray controller for Sony Bluetooth headphones and earbuds. Battery monitoring, ANC, Equalizer, Clear Bass, and multipoint controls in pure Rust.
 
@@ -33,6 +35,43 @@ A lightweight Windows system tray controller for Sony Bluetooth headphones and e
 1. Pair your headphones in Windows under **Settings → Bluetooth & devices**.
 2. Download `connect-tray.exe` from the latest [Release](https://github.com/pdimu/connect-tray/releases).
 3. Run the executable. Right-click the headphone icon in the system tray to control settings.
+
+---
+
+## Building from Source
+
+Prerequisites: [Rust](https://rustup.rs/) (2024 edition) and Python 3.
+
+```powershell
+# Clone the repository
+git clone https://github.com/pdimu/connect-tray.git
+cd connect-tray
+
+# Build optimized binary
+cargo build --release
+
+# Stamp 10-layer PE icon and Windows 11 DPI manifest
+python scripts/stamp_pe.py
+```
+
+The resulting standalone executable is at `target/release/connect-tray.exe`.
+
+---
+
+## Troubleshooting
+
+- **Tray icon shows "searching...":** Make sure Bluetooth is enabled and your headphones are paired in Windows Settings. The app continuously scans and connects automatically when in range.
+- **Connection takes a few seconds on wake:** Sony devices permit only one active RFCOMM control channel at a time. If the official mobile app is actively communicating, allow 2-3 seconds for handover.
+- **Diagnostic logs:** To inspect connection traces, right-click the tray icon and select **other › debug logging**. Logs write to `%LOCALAPPDATA%\SonyConnectTray\trace.log` (open via **other › open logs folder**).
+
+---
+
+## Contributing
+
+Contributions, bug reports, and device compatibility test results are welcome.
+
+- **Testing new models**: If you have a Sony Bluetooth headset running MDR v2 not yet listed in the table, please open an issue or pull request with your model name and verified controls.
+- **Code checks**: Run `cargo check`, `cargo test --lib`, and `cargo clippy` before submitting PRs.
 
 ---
 
