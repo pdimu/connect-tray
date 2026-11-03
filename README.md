@@ -177,12 +177,12 @@ print("Build complete: target/release/connect-tray.exe stamped successfully")
 
 ## Authors & Credits
 
-- **Dimu** ([@pdimu](https://github.com/pdimu)) — Lead developer, reverse-engineering & UI design
-- **Google Gemini 3.8 Flash** — Co-author & pair programming
+- **Dimu** ([@pdimu](https://github.com/pdimu)): Lead developer, reverse-engineering & UI design
+- **Google Gemini 3.8 Flash**: Co-author & pair programming
 - Inspired by [Vadim-Karpenko/ear-tray](https://github.com/Vadim-Karpenko/ear-tray) for Nothing / CMF hardware.
 
 ---
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License, see the [LICENSE](LICENSE) file for details.
