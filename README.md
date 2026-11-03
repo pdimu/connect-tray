@@ -183,6 +183,12 @@ print("Build complete: target/release/connect-tray.exe stamped successfully")
 
 ---
 
+## Disclaimer
+
+This is an unofficial, independent open-source tool. It is not affiliated with, endorsed by, or associated with Sony Group Corporation, Sony Corporation, or any of its subsidiaries. All product names, trademarks, and registered trademarks (including "Sony", "WH-CH720N", "WH-1000XM4", "WH-1000XM5", and "LinkBuds") are property of their respective owners. Everything is implemented independently by reverse-engineering Bluetooth RFCOMM protocol packets for personal use.
+
+---
+
 ## License
 
 This project is licensed under the MIT License, see the [LICENSE](LICENSE) file for details.
