@@ -1,4 +1,4 @@
-<img src="assets/app.png" width="64" height="64" align="center" alt="Sony Connect Tray">
+<img src="assets/app.png" width="128" height="128" align="center" alt="Sony Connect Tray">
 
 # Sony Connect Tray
 
