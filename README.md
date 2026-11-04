@@ -1,5 +1,6 @@
 <img src="assets/app.png" width="128" height="128" align="center" alt="Sony Connect Tray">
 
+
 # Sony Connect Tray
 
 A lightweight Windows system tray controller for Sony Bluetooth headphones and earbuds. Battery monitoring, ANC, Equalizer, Clear Bass, and multipoint controls in pure Rust.
